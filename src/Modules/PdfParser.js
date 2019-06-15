@@ -52,7 +52,8 @@ class PdfParser{
 
             return {
                 date: PdfParser.getCreationDate(data.info),
-                textArr: PdfParser.textToJSON(data.text)
+                textArr: PdfParser.textToJSON(data.text),
+                raw: data.text
             };
         })
         .catch(function(error){
