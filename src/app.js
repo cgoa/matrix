@@ -63,12 +63,10 @@ app.get('/search/:query', async (req, res) => {
     var x = await client.search({
       index: 'files',
       type: 'file',
-      // q: req.params.query
+      q: 'terminate_after=1',
       body: {
         query: {
-            wildcard: {
-                "raw": '%'
-            }
+          "raw": req.params.query
         }
     }
     });
