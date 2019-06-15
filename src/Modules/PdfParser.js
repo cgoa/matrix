@@ -60,6 +60,10 @@ class PdfParser{
     static textToJSON(data){
         let parsedData = data.split(/(?:\n){2,}/g);
 
+        parsedData.filter((elem) => {
+            return elem !== '';
+        });
+
         return parsedData;
     }
 
