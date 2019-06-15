@@ -3,6 +3,8 @@ const fsp = require('fs').promises;
 const path = require('path');
 const pdf = require('pdf-parse');
 
+const moment = require("moment");
+
 class PdfParser{
     constructor(){
     }
@@ -46,7 +48,12 @@ class PdfParser{
         let dataBuffer = fs.readFileSync(path);
 
         return pdf(dataBuffer).then(function(data) {
-            return PdfParser.textToJSON(data.text);
+            console.log(data.info);
+
+            return {
+                date: PdfParser.getCreationDate(data.info),
+                textArr: PdfParser.textToJSON(data.text)
+            };
         })
         .catch(function(error){
             // handle exceptions
@@ -57,6 +64,11 @@ class PdfParser{
         let parsedData = data.split(/(?:\n){2,}/g);
 
         return parsedData;
+    }
+
+    static getCreationDate(infoData){
+        let rawDate = infoData.CreationDate;
+        return new moment(rawDate, '  YYYYMMDDHHmmss').utc().format();
     }
 }
 module.exports = PdfParser;
