@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { promises as fsp } from 'fs';
+import fs from 'fs';
 import { join } from 'path';
 import pdf from 'pdf-parse';
 
@@ -9,27 +9,25 @@ class PdfParser{
     constructor(){
     }
 
-    static async parsePDFFolder(){
+    static parsePDFFolder(){
         let directoryPath = join(__dirname,'../../Files');
-        let arr = [];
+        let fileArr = [];
 
-        arr = await fsp.readdir(directoryPath, function (err, files) {
-            let fileArr = [];
+        fileArr = fs.readdirSync(directoryPath);
+        // fs.readdirSync(directoryPath, function (err, files) {
+        //     //handling error
+        //     if (err) {
+        //         return console.log('Unable to scan directory: ' + err);
+        //     }
+        //
+        //     //listing all files using forEach
+        //     files.forEach(function (file) {
+        //         // Do whatever you want to do with the file
+        //         fileArr.push(file);
+        //     });
+        // });
 
-            //handling error
-            if (err) {
-                return console.log('Unable to scan directory: ' + err);
-            }
-            //listing all files using forEach
-            files.forEach(function (file) {
-                // Do whatever you want to do with the file
-                fileArr.push(file);
-            });
-
-            return fileArr;
-        });
-
-        return PdfParser.parsePDFArr(arr);
+        return PdfParser.parsePDFArr(fileArr);
     }
 
     static async parsePDFArr(arr, index = 0, resultArr = []){
@@ -48,8 +46,6 @@ class PdfParser{
         let dataBuffer = readFileSync(path);
 
         return pdf(dataBuffer).then(function(data) {
-            // console.log(data.info);
-
             return {
                 date: PdfParser.getCreationDate(data.info),
                 textArr: PdfParser.textToJSON(data.text),
