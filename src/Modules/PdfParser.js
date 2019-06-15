@@ -70,5 +70,21 @@ class PdfParser{
         let rawDate = infoData.CreationDate;
         return new moment(rawDate, '  YYYYMMDDHHmmss').utc().format();
     }
+
+    static filterTextArrByKeyword(textArr, keyword){
+        let filteredArr = [];
+        textArr = textArr.map((elem) => {
+            return elem.toLowerCase();
+        });
+        keyword = keyword.toLowerCase();
+
+        textArr.forEach((elem, index) => {
+            if(elem.includes(keyword)){
+                filteredArr.push(elem);
+            }
+        });
+
+        return filteredArr;
+    }
 }
 export default PdfParser;
