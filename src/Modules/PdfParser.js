@@ -52,7 +52,8 @@ class PdfParser{
 
             return {
                 date: PdfParser.getCreationDate(data.info),
-                textArr: PdfParser.textToJSON(data.text)
+                textArr: PdfParser.textToJSON(data.text),
+                raw: data.text
             };
         })
         .catch(function(error){
@@ -69,6 +70,22 @@ class PdfParser{
     static getCreationDate(infoData){
         let rawDate = infoData.CreationDate;
         return new moment(rawDate, '  YYYYMMDDHHmmss').utc().format();
+    }
+
+    static filterTextArrByKeyword(textArr, keyword){
+        let filteredArr = [];
+        textArr = textArr.map((elem) => {
+            return elem.toLowerCase();
+        });
+        keyword = keyword.toLowerCase();
+
+        textArr.forEach((elem, index) => {
+            if(elem.includes(keyword)){
+                filteredArr.push(elem);
+            }
+        });
+
+        return filteredArr;
     }
 }
 export default PdfParser;
