@@ -3,21 +3,35 @@ const app = express();
 app.use(express.static('./src/public'))
 
 import PdfParser from './Modules/PdfParser';
-const pdfparser = new PdfParser();
+import ElasticClient from './elasticClient';
 
 const hostname = '127.0.0.1';
 const port = 3000;
 
-async function getPdf(x) {
-  let result = await pdfparser.parsePdf(x);
-  return result;
-}
-
 app.get('/', async (req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
-  let pdf = await getPdf("test");
+  const con = await PdfParser.parsePDFFolder();
+
   res.send(`Hello ${pdf}`);
+});
+
+app.get('/sodemieterhetelasticin', async (req, res) =>{
+  try {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    var file = await PdfParser.parsePDFFolder();
+    ElasticClient.index({
+      index: 'files',
+      type: 'file',
+      body: Object.assign({},file)
+  }, function(err, resp, status) {
+      console.log(resp);
+  });
+  } catch(ex){
+    console.log(ex);
+    res.send('elasticsearch cluster is down!');
+  }
 });
 
 app.get('/about', async (req, res) => {
