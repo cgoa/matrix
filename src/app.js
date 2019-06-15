@@ -1,15 +1,22 @@
 import express from 'express';
 const app = express();
 
-import pdfparser from './Modules/PdfParser';
+import PdfParser from './Modules/PdfParser';
+
+const pdfparser = new PdfParser();
 
 const hostname = '127.0.0.1';
 const port = 3000;
 
-app.get('/', (req, res) => {
+async function getPdf(x) {
+  let result = await pdfparser.parsePdf(x);
+  return result;
+}
+
+app.get('/', async (req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
-  let pdf = "test";//await pdfparser.parsePdf("c:/test");
+  let pdf = await getPdf("test");
   res.send(`Hello ${pdf}`);
 });
 
