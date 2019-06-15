@@ -20,10 +20,19 @@ app.get('/', async (req, res) => {
   res.send(`Hello ${pdf}`);
 });
 
-app.get('/about', (req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.send('About page');
+app.get('/about', async (req, res) => {
+  try {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    var result = await client.ping({
+      // ping usually has a 3000ms timeout
+      requestTimeout: 4000
+    });
+    res.send(result);
+  } catch(ex){
+    console.log(ex);
+    res.send('elasticsearch cluster is down!');
+  }
 });
 
 app.get('/search', (req, res) => {
