@@ -1,10 +1,20 @@
+const fs = require('fs');
+const pdf = require('pdf-parse');
+
 class PdfParser{
     constructor(){
         
     }
 
-    async parsePdf(path){
-        return path;
+    parsePdf(path){
+        let dataBuffer = fs.readFileSync(path);
+
+        return pdf(dataBuffer).then(function(data) {
+            return data;
+        })
+        .catch(function(error){
+            // handle exceptions
+        })
     }
 }
-export default PdfParser;
+module.exports = PdfParser;

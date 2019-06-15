@@ -4,6 +4,7 @@
   "description": "GCOA hackathon",
   "main": "app.js",
   "dependencies": {
+    "esm": "^3.2.25",
     "pdf-parse": "^1.1.1"
   },
   "devDependencies": {},
