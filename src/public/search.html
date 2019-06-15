@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Page Title</title>
+
+		<script>
+			let queries = [];
+
+			const search = (el) => {
+				let x = document.getElementById(el).value;
+				console.log(`You searched: ${x}`);
+				if (contains(queries, x)) { console.log(`You are already searching for ${x}`); }
+				else { 
+					queries.push(x);
+					/* TODO: Add ability to remove items from the list */
+					document.getElementById('queries').innerHTML = queries.join(', ');
+				}
+				communicate(queries.join());
+			}
+
+			const contains = (arr, item) => {
+				for (let i = 0; i < arr.length; i++) { if (arr[i] == item) return true; }
+				return false;
+			}
+
+			const communicate = (q) => {
+				fetch(`/search/${q}`)
+				.then(
+					(res) => {
+						if (res.status !== 200) {
+							console.log('Error. Status Code: ' + res.status);
+							return res.status;
+						}
+						res.json().then(function(data) {
+							console.log(data); // results
+							document.getElementById('result').innerHTML = JSON.stringify(data);
+						});
+					}
+				)
+				.catch( (err) => { console.log('Fetch Error: ', err); return err; } );
+			}
+
+			window.onload = () => {
+				document.getElementById('query').onkeypress = (e) => { if (e.keyCode == 13) search('query'); }
+			}
+		</script>
+	</head>
+
+	<body>
+		<h2>Search</h2>
+		<p id="queries"></p>
+		<input id="query" type="text"></input>
+		<button onclick="search('query')">Search</button>
+		<p id="result"></p>
+	</body>
+
+</html>
+
