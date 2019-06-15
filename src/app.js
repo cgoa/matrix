@@ -1,14 +1,15 @@
 import express from 'express';
 const app = express();
-
-import pdfparser from './Modules/PdfParser';
+const PdfParser = require('./Modules/PdfParser').default;
 import client from './elasticClient';
 const hostname = '127.0.0.1';
 const port = 3000;
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
+  var jakut = await PdfParser.parsePDFFolder();
+  console.log(jakut);
   let pdf = "test";//await pdfparser.parsePdf("c:/test");
   res.send(`Hello ${pdf}`);
 });
