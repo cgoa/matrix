@@ -9,6 +9,7 @@
     "start": "node -r esm src/app.js"
   },
   "dependencies": {
+    "elasticsearch": "^16.1.1",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "pdf-parse": "^1.1.1"
