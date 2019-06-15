@@ -48,7 +48,7 @@ class PdfParser{
         let dataBuffer = readFileSync(path);
 
         return pdf(dataBuffer).then(function(data) {
-            console.log(data.info);
+            // console.log(data.info);
 
             return {
                 date: PdfParser.getCreationDate(data.info),

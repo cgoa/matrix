@@ -21,13 +21,13 @@ app.get('/sodemieterhetelasticin', async (req, res) =>{
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain');
     var file = await PdfParser.parsePDFFolder();
-    client.index({
-      index: 'files',
-      type: 'file',
-      body: Object.assign({},file)
-  }, function(err, resp, status) {
-      console.log(resp);
-  });
+    await client.index({
+        index: 'files',
+        type: 'file',
+        body: Object.assign({},file)
+      }, function(err, resp, status) {
+          //console.log(resp);
+    });
   } catch(ex){
     console.log(ex);
     res.send('elasticsearch cluster is down!');
@@ -63,7 +63,14 @@ app.get('/search/:query', async (req, res) => {
     var x = await client.search({
       index: 'files',
       type: 'file',
-      q: req.params.query
+      // q: req.params.query
+      body: {
+        query: {
+            wildcard: {
+                "raw": '%'
+            }
+        }
+    }
     });
     res.send(x);
   } else {
