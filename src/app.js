@@ -63,7 +63,7 @@ app.get('/search/:query', async (req, res) => {
     var x = await client.search({
       index: 'files',
       type: 'file',
-      q: 'terminate_after=1',
+      q: 'terminate_after=10',
       body: {
         query: {
           "raw": req.params.query
