@@ -3,7 +3,7 @@ const app = express();
 app.use(express.static('./src/public'))
 
 import PdfParser from './Modules/PdfParser';
-import ElasticClient from './elasticClient';
+import client from './elasticClient';
 
 const hostname = '127.0.0.1';
 const port = 3000;
@@ -21,13 +21,13 @@ app.get('/sodemieterhetelasticin', async (req, res) =>{
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain');
     var file = await PdfParser.parsePDFFolder();
-    ElasticClient.index({
-      index: 'files',
-      type: 'file',
-      body: Object.assign({},file)
-  }, function(err, resp, status) {
-      console.log(resp);
-  });
+    await client.index({
+        index: 'files',
+        type: 'file',
+        body: Object.assign({},file)
+      }, function(err, resp, status) {
+          //console.log(resp);
+    });
   } catch(ex){
     console.log(ex);
     res.send('elasticsearch cluster is down!');
@@ -55,14 +55,22 @@ app.get('/search', (req, res) => {
   res.sendFile('public/search.html' , { root : __dirname});
 });
 
-app.get('/search/:query', (req, res) => {
+app.get('/search/:query', async (req, res) => {
   if (req.params) {
-    console.log('req.params!');
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    //req.body.query[0] = capitalize(req.body.query[0]);
     console.log(req.params);
-    res.send(req.params);
+    var x = await client.search({
+      index: 'files',
+      type: 'file',
+      q: 'terminate_after=10',
+      body: {
+        query: {
+          "raw": req.params.query
+        }
+    }
+    });
+    res.send(x);
   } else {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'html');

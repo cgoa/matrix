@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { promises as fsp } from 'fs';
+import fs from 'fs';
 import { join } from 'path';
 import pdf from 'pdf-parse';
 
@@ -9,27 +9,25 @@ class PdfParser{
     constructor(){
     }
 
-    static async parsePDFFolder(){
+    static parsePDFFolder(){
         let directoryPath = join(__dirname,'../../Files');
-        let arr = [];
+        let fileArr = [];
 
-        arr = await fsp.readdir(directoryPath, function (err, files) {
-            let fileArr = [];
+        fileArr = fs.readdirSync(directoryPath);
+        // fs.readdirSync(directoryPath, function (err, files) {
+        //     //handling error
+        //     if (err) {
+        //         return console.log('Unable to scan directory: ' + err);
+        //     }
+        //
+        //     //listing all files using forEach
+        //     files.forEach(function (file) {
+        //         // Do whatever you want to do with the file
+        //         fileArr.push(file);
+        //     });
+        // });
 
-            //handling error
-            if (err) {
-                return console.log('Unable to scan directory: ' + err);
-            }
-            //listing all files using forEach
-            files.forEach(function (file) {
-                // Do whatever you want to do with the file
-                fileArr.push(file);
-            });
-
-            return fileArr;
-        });
-
-        return PdfParser.parsePDFArr(arr);
+        return PdfParser.parsePDFArr(fileArr);
     }
 
     static async parsePDFArr(arr, index = 0, resultArr = []){
@@ -38,21 +36,21 @@ class PdfParser{
         }
 
         let elem = arr[index];
-        let parsedResult = await PdfParser.parsePdf('./Files'+'/'+elem);
+        let parsedResult = await PdfParser.parsePdf('./Files'+'/'+elem, elem);
 
         resultArr.push(parsedResult);
         return PdfParser.parsePDFArr(arr, ++index, resultArr);
     }
 
-    static parsePdf(path){
+    static parsePdf(path, fileName){
         let dataBuffer = readFileSync(path);
 
         return pdf(dataBuffer).then(function(data) {
-            console.log(data.info);
-
             return {
+                name: PdfParser.getFileName(fileName),
                 date: PdfParser.getCreationDate(data.info),
-                textArr: PdfParser.textToJSON(data.text)
+                textArr: PdfParser.textToJSON(data.text),
+                raw: data.text
             };
         })
         .catch(function(error){
@@ -63,12 +61,37 @@ class PdfParser{
     static textToJSON(data){
         let parsedData = data.split(/(?:\n){2,}/g);
 
+        parsedData.filter((elem) => {
+            return elem !== '';
+        });
+
         return parsedData;
+    }
+
+    static getFileName(rawFileName){
+        return rawFileName.replace(/[\-\_]/g, ' ').replace(/[^a-zA-Z0-9{.pdf}\s:]/g, '');
     }
 
     static getCreationDate(infoData){
         let rawDate = infoData.CreationDate;
+        console.log('date: ',new moment(rawDate, '  YYYYMMDDHHmmss').utc().format());
         return new moment(rawDate, '  YYYYMMDDHHmmss').utc().format();
+    }
+
+    static filterTextArrByKeyword(textArr, keyword){
+        let filteredArr = [];
+        textArr = textArr.map((elem) => {
+            return elem.toLowerCase();
+        });
+        keyword = keyword.toLowerCase();
+
+        textArr.forEach((elem, index) => {
+            if(elem.includes(keyword)){
+                filteredArr.push(elem);
+            }
+        });
+
+        return filteredArr;
     }
 }
 export default PdfParser;
