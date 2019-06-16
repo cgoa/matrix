@@ -36,17 +36,18 @@ class PdfParser{
         }
 
         let elem = arr[index];
-        let parsedResult = await PdfParser.parsePdf('./Files'+'/'+elem);
+        let parsedResult = await PdfParser.parsePdf('./Files'+'/'+elem, elem);
 
         resultArr.push(parsedResult);
         return PdfParser.parsePDFArr(arr, ++index, resultArr);
     }
 
-    static parsePdf(path){
+    static parsePdf(path, fileName){
         let dataBuffer = readFileSync(path);
 
         return pdf(dataBuffer).then(function(data) {
             return {
+                name: PdfParser.getFileName(fileName),
                 date: PdfParser.getCreationDate(data.info),
                 textArr: PdfParser.textToJSON(data.text),
                 raw: data.text
@@ -67,8 +68,13 @@ class PdfParser{
         return parsedData;
     }
 
+    static getFileName(rawFileName){
+        return rawFileName.replace(/[\-\_]/g, ' ').replace(/[^a-zA-Z0-9{.pdf}\s:]/g, '');
+    }
+
     static getCreationDate(infoData){
         let rawDate = infoData.CreationDate;
+        console.log('date: ',new moment(rawDate, '  YYYYMMDDHHmmss').utc().format());
         return new moment(rawDate, '  YYYYMMDDHHmmss').utc().format();
     }
 
